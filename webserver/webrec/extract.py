@@ -16,16 +16,20 @@ def extract_face(src_file, dst_file):
 	except:
 		raise OSError("no file" % (src_file))
 	rects = detector.detect(img)
+	size=0
 	for i,rect in enumerate(rects):
 		x0,y0,x1,y1 = rect
 		face = img[y0:y1,x0:x1]
-		face = cv2.resize(face, face_sz, interpolation = cv2.INTER_CUBIC)
-		face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-		dst_file = dst_file+str(i)+".jpg"
-		try:
-			cv2.imwrite(dst_file, face)
-		except:
-			raise OSError("no dir" % (dst_file))
+		facesize=np.size(face)
+		if  facesize > size :
+			facereal = cv2.resize(face, face_sz, interpolation = cv2.INTER_CUBIC)
+			facereal = cv2.cvtColor(facereal, cv2.COLOR_BGR2GRAY)
+			size=facesize
+	dst_file = dst_file+".jpg"
+	try:
+		cv2.imwrite(dst_file, facereal)
+	except:
+		raise OSError("no result" % (dst_file))
 	return dst_file
 def extract_faces(src_dir, dst_dir, detector, face_sz = (320,243)):
 	"""
