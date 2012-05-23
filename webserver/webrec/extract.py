@@ -1,30 +1,32 @@
 #!/usr/bin/python
 import sys
 # append facerec to module search path
-sys.path.append("../..")
+sys.path.append("../../facerec/")
 import cv2
 from facedet.detector import SkinFaceDetector
 import numpy as np
 import os
 
 
-def extract_face(src_file, dst_file, detector, face_sz = (320,243)):
+def extract_face(src_file, dst_file):
+	face_sz = (320,243)
+	detector = SkinFaceDetector(threshold=0.01, cascade_fn="/root/libface/opencv/data/haarcascades/haarcascade_frontalface_alt2.xml")
 	try:
 		img = cv2.imread(src_file)
 	except:
 		raise OSError("no file" % (src_file))
 	rects = detector.detect(img)
 	for i,rect in enumerate(rects):
-	x0,y0,x1,y1 = rect
+		x0,y0,x1,y1 = rect
 		face = img[y0:y1,x0:x1]
 		face = cv2.resize(face, face_sz, interpolation = cv2.INTER_CUBIC)
-		print os.path.join(dst_subdir, "%s_%s_%d%s" % (subdir, name,i,ext))
 		face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+		dst_file = dst_file+str(i)+".jpg"
 		try:
-			cv2.imwrite(dst_file+str(i), face)
+			cv2.imwrite(dst_file, face)
 		except:
 			raise OSError("no dir" % (dst_file))
-
+	return dst_file
 def extract_faces(src_dir, dst_dir, detector, face_sz = (320,243)):
 	"""
 	Extracts the faces from all images in a given src_dir and writes the extracted faces
